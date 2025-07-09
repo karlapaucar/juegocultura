@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Culturas Preincas del Perú - Juego Interactivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #8B4513 0%, #CD853F 50%, #F4A460 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #B8860B 0%, #DAA520 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="30" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #F5F5DC;
+            border-bottom: 3px solid #DAA520;
+        }
+
+        .info-box {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid #DAA520;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-box h3 {
+            color: #8B4513;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .info-box span {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #B8860B;
+        }
+
+        .instructions {
+            background: #FFF8DC;
+            padding: 20px 30px;
+            border-bottom: 3px solid #DAA520;
+        }
+
+        .instructions h2 {
+            color: #8B4513;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #654321;
+        }
+
+        .instructions li::before {
+            content: '🏺';
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .game-area {
+            padding: 30px;
+            background: #FAFAFA;
+        }
+
+        .columns-container {
+            display: flex;
+            gap: 50px;
+            margin: 30px 0;
+        }
+
+        .column {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 3px solid #DAA520;
+        }
+
+        .column h3 {
+            text-align: center;
+            color: #8B4513;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            padding: 10px;
+            background: #F5F5DC;
+            border-radius: 10px;
+            border: 2px solid #DAA520;
+        }
+
+        .item {
+            background: linear-gradient(135deg, #FFF8DC 0%, #F5F5DC 100%);
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #DAA520;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: 500;
+            color: #654321;
+        }
+
+        .item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-color: #B8860B;
+        }
+
+        .item.selected {
+            background: linear-gradient(135deg, #B8860B 0%, #DAA520 100%);
+            color: white;
+            border-color: #8B4513;
+            transform: scale(1.05);
+        }
+
+        .item.correct {
+            background: linear-gradient(135deg, #32CD32 0%, #228B22 100%);
+            color: white;
+            border-color: #006400;
+            animation: correctPulse 0.6s ease-in-out;
+        }
+
+        .item.incorrect {
+            background: linear-gradient(135deg, #FF6B6B 0%, #DC143C 100%);
+            color: white;
+            border-color: #8B0000;
+            animation: incorrectShake 0.6s ease-in-out;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #B8860B 0%, #8B4513 100%);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .status-message {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-message.success {
+            background: linear-gradient(135deg, #D4EDDA 0%, #C3E6CB 100%);
+            color: #155724;
+            border: 2px solid #28A745;
+        }
+
+        .status-message.error {
+            background: linear-gradient(135deg, #F8D7DA 0%, #F5C6CB 100%);
+            color: #721C24;
+            border: 2px solid #DC3545;
+        }
+
+        .status-message.info {
+            background: linear-gradient(135deg, #CCE5FF 0%, #B8D4FF 100%);
+            color: #0056B3;
+            border: 2px solid #007BFF;
+        }
+
+        .game-complete {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #FFE4B5 0%, #F5DEB3 100%);
+            border-radius: 15px;
+            border: 3px solid #DAA520;
+            margin: 20px 0;
+        }
+
+        .game-complete h2 {
+            color: #8B4513;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .final-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #DAA520;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #B8860B;
+        }
+
+        .stat-label {
+            color: #8B4513;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .columns-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .final-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏺 Culturas Preincas del Perú 🏺</h1>
+            <p>Descubre y relaciona las antiguas civilizaciones peruanas</p>
+        </div>
+
+        <div class="game-info">
+            <div class="info-box">
+                <h3>⏰ Tiempo</h3>
+                <span id="timer">00:00</span>
+            </div>
+            <div class="info-box">
+                <h3>✅ Correctas</h3>
+                <span id="correct-count">0</span>
+            </div>
+            <div class="info-box">
+                <h3>❌ Incorrectas</h3>
+                <span id="incorrect-count">0</span>
+            </div>
+            <div class="info-box">
+                <h3>🎯 Progreso</h3>
+                <span id="progress">0/8</span>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h2>📋 Instrucciones</h2>
+            <ul>
+                <li>Haz clic en una cultura de la columna izquierda</li>
+                <li>Luego haz clic en su característica correspondiente de la columna derecha</li>
+                <li>Las respuestas correctas se marcarán en verde</li>
+                <li>Las respuestas incorrectas se marcarán en rojo</li>
+                <li>¡Intenta completar todas las relaciones en el menor tiempo posible!</li>
+            </ul>
+        </div>
+
+        <div class="game-area">
+            <div class="columns-container">
+                <div class="column">
+                    <h3>🏛️ Culturas Preincas</h3>
+                    <div id="cultures-column"></div>
+                </div>
+                <div class="column">
+                    <h3>🔍 Características</h3>
+                    <div id="characteristics-column"></div>
+                </div>
+            </div>
+
+            <div class="status-message" id="status-message">
+                ¡Selecciona una cultura para comenzar!
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="startNewGame()">🎮 Nuevo Juego</button>
+                <button class="btn" onclick="showHint()">💡 Pista</button>
+            </div>
+
+            <div id="game-complete" class="game-complete" style="display: none;">
+                <h2>🎉 ¡Felicitaciones!</h2>
+                <p>Has completado el juego de Culturas Preincas del Perú</p>
+                <div class="final-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="final-time">00:00</div>
+                        <div class="stat-label">Tiempo Total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="final-correct">0</div>
+                        <div class="stat-label">Respuestas Correctas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="final-incorrect">0</div>
+                        <div class="stat-label">Respuestas Incorrectas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="final-accuracy">0%</div>
+                        <div class="stat-label">Precisión</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos del juego - Culturas Preincas y sus características
+        const gameData = {
+            'Cultura Chavín': 'Famosa por el Templo de Chavín de Huántar y sus cabezas clavas',
+            'Cultura Moche': 'Conocida por sus huacos retratos y la Señora de Cao',
+            'Cultura Nazca': 'Creadores de las misteriosas Líneas de Nazca',
+            'Cultura Chimú': 'Constructores de Chan Chan, la ciudadela de adobe más grande',
+            'Cultura Paracas': 'Destacaron por sus textiles y técnicas de trepanación',
+            'Cultura Tiahuanaco': 'Famosa por la Puerta del Sol y Kalasasaya',
+            'Cultura Wari': 'Primera civilización imperial andina',
+            'Cultura Chachapoya': 'Conocidos como los "Guerreros de las Nubes"'
+        };
+
+        // Variables del juego
+        let selectedCulture = null;
+        let correctMatches = 0;
+        let incorrectAttempts = 0;
+        let gameStartTime = null;
+        let gameTimer = null;
+        let matchedPairs = new Set();
+        let gameActive = false;
+
+        // Función para mezclar array
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Inicializar el juego
+        function initGame() {
+            const cultures = Object.keys(gameData);
+            const characteristics = Object.values(gameData);
+            
+            // Mezclar las características para evitar alineación directa
+            const shuffledCharacteristics = shuffleArray(characteristics);
+            
+            // Crear elementos de culturas
+            const culturesColumn = document.getElementById('cultures-column');
+            culturesColumn.innerHTML = '';
+            cultures.forEach((culture, index) => {
+                const item = document.createElement('div');
+                item.className = 'item';
+                item.dataset.culture = culture;
+                item.textContent = culture;
+                item.onclick = () => selectCulture(item);
+                culturesColumn.appendChild(item);
+            });
+
+            // Crear elementos de características
+            const characteristicsColumn = document.getElementById('characteristics-column');
+            characteristicsColumn.innerHTML = '';
+            shuffledCharacteristics.forEach((characteristic, index) => {
+                const item = document.createElement('div');
+                item.className = 'item';
+                item.dataset.characteristic = characteristic;
+                item.textContent = characteristic;
+                item.onclick = () => selectCharacteristic(item);
+                characteristicsColumn.appendChild(item);
+            });
+
+            // Resetear variables del juego
+            selectedCulture = null;
+            correctMatches = 0;
+            incorrectAttempts = 0;
+            matchedPairs.clear();
+            gameActive = true;
+            
+            // Iniciar el temporizador
+            gameStartTime = Date.now();
+            startTimer();
+            
+            // Resetear contadores
+            updateCounters();
+            updateStatusMessage('¡Selecciona una cultura para comenzar!', 'info');
+        }
+
+        // Función para seleccionar cultura
+        function selectCulture(element) {
+            if (!gameActive || element.classList.contains('correct')) return;
+            
+            // Limpiar selección anterior
+            document.querySelectorAll('.item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Seleccionar nueva cultura
+            element.classList.add('selected');
+            selectedCulture = element.dataset.culture;
+            updateStatusMessage(`Cultura seleccionada: ${selectedCulture}. Ahora elige su característica.`, 'info');
+        }
+
+        // Función para seleccionar característica
+        function selectCharacteristic(element) {
+            if (!gameActive || !selectedCulture || element.classList.contains('correct')) return;
+            
+            const selectedCharacteristic = element.dataset.characteristic;
+            const correctCharacteristic = gameData[selectedCulture];
+            
+            // Encontrar el elemento de la cultura seleccionada
+            const cultureElement = document.querySelector(`[data-culture="${selectedCulture}"]`);
+            
+            if (selectedCharacteristic === correctCharacteristic) {
+                // Respuesta correcta
+                correctMatches++;
+                matchedPairs.add(selectedCulture);
+                
+                // Marcar como correctas
+                cultureElement.classList.add('correct');
+                element.classList.add('correct');
+                
+                // Limpiar selección
+                cultureElement.classList.remove('selected');
+                selectedCulture = null;
+                
+                updateStatusMessage('¡Correcto! Excelente conocimiento de las culturas preincas.', 'success');
+                
+                // Verificar si el juego terminó
+                if (correctMatches === Object.keys(gameData).length) {
+                    endGame();
+                }
+            } else {
+                // Respuesta incorrecta
+                incorrectAttempts++;
+                
+                // Marcar como incorrectas temporalmente
+                cultureElement.classList.add('incorrect');
+                element.classList.add('incorrect');
+                
+                updateStatusMessage('Incorrecto. Intenta de nuevo con otra característica.', 'error');
+                
+                // Quitar marcas incorrectas después de 1 segundo
+                setTimeout(() => {
+                    cultureElement.classList.remove('incorrect', 'selected');
+                    element.classList.remove('incorrect');
+                    selectedCulture = null;
+                    updateStatusMessage('Selecciona una cultura para continuar.', 'info');
+                }, 1000);
+            }
+            
+            updateCounters();
+        }
+
+        // Función para actualizar contadores
+        function updateCounters() {
+            document.getElementById('correct-count').textContent = correctMatches;
+            document.getElementById('incorrect-count').textContent = incorrectAttempts;
+            document.getElementById('progress').textContent = `${correctMatches}/${Object.keys(gameData).length}`;
+        }
+
+        // Función para actualizar mensaje de estado
+        function updateStatusMessage(message, type) {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.className = `status-message ${type}`;
+        }
+
+        // Función para el temporizador
+        function startTimer() {
+            gameTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Función para terminar el juego
+        function endGame() {
+            gameActive = false;
+            clearInterval(gameTimer);
+            
+            const totalTime = Math.floor((Date.now() - gameStartTime) / 1000);
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = totalTime % 60;
+            const accuracy = Math.round((correctMatches / (correctMatches + incorrectAttempts)) * 100);
+            
+            // Mostrar estadísticas finales
+            document.getElementById('final-time').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('final-correct').textContent = correctMatches;
+            document.getElementById('final-incorrect').textContent = incorrectAttempts;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+            
+            // Mostrar pantalla de finalización
+            document.getElementById('game-complete').style.display = 'block';
+            
+            updateStatusMessage('¡Juego completado! Revisa tus estadísticas abajo.', 'success');
+        }
+
+        // Función para iniciar nuevo juego
+        function startNewGame() {
+            clearInterval(gameTimer);
+            document.getElementById('game-complete').style.display = 'none';
+            initGame();
+        }
+
+        // Función para mostrar pista
+        function showHint() {
+            if (!gameActive) return;
+            
+            const unmatched = Object.keys(gameData).filter(culture => !matchedPairs.has(culture));
+            if (unmatched.length === 0) return;
+            
+            const randomCulture = unmatched[Math.floor(Math.random() * unmatched.length)];
+            const hint = `💡 Pista: ${randomCulture} - ${gameData[randomCulture]}`;
+            updateStatusMessage(hint, 'info');
+            
+            // Volver al mensaje normal después de 5 segundos
+            setTimeout(() => {
+                if (gameActive) {
+                    updateStatusMessage('Usa la pista para hacer tu próxima selección.', 'info');
+                }
+            }, 5000);
+        }
+
+        // Inicializar el juego al cargar la página
+        window.onload = function() {
+            initGame();
+        };
+    </script>
+</body>
+</html>
